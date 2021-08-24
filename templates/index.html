@@ -1,23 +1,8 @@
 <!doctype html>
-<!--
- Copyright 2021 Google LLC
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
 
 <html>
 <head>
-  <title>Datastore and Firebase Auth Example</title>
+  <title>No-Frills Recipe Database</title>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
@@ -26,27 +11,16 @@
 
     
 <!----- Main --->
-<h1>Datastore and Firebase Auth Example</h1>
+<h1>No-Frills Recipe Database</h1>
+    <header>Keep store and search your own private recipe database</header>
+    <div id="firebaseui-auth-container"></div>
 
-<div id="firebaseui-auth-container"></div>
+    {% if user_data %}
+    <p>Welcome, {{ user_data['name'] }} 
+        <button id="sign-out" hidden=true>Sign Out</button>
+    </p>
+    {% endif %}
 
-<button id="sign-out" hidden=true>Sign Out</button>
-
-<div id="login-info" hidden=true>
-  <h2>Login info:</h2>
-  {% if user_data %}
-    <dl>
-      <dt>Name</dt><dd>{{ user_data['name'] }}</dd>
-      <dt>Email</dt><dd>{{ user_data['email'] }}</dd>
-      <dt>Last 10 visits</dt><dd>
-        {% for time in times %}
-          <p>{{ time['timestamp'] }}</p>
-        {% endfor %} </dd>
-    </dl>
-  {% elif error_message %}
-    <p>Error: {{ error_message }}</p>
-  {% endif %}
-</div>
 <!----- End Main ----->
     
     
