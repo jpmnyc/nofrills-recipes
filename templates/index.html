@@ -2,11 +2,12 @@
 
 <html>
 <head>
-  <title>No-Frills Recipe Database</title>
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
-  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" /></head>
+    <title>No-Frills Recipe Database</title>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" /></head>
+    <script src="{{ url_for('static', filename='firebase-config.js') }}"></script>
 <body>
 
     
@@ -14,11 +15,16 @@
 <h1>No-Frills Recipe Database</h1>
     <header>Keep store and search your own private recipe database</header>
     <div id="firebaseui-auth-container"></div>
+    <button id="sign-out" hidden=true>Sign Out</button>
 
+    <p><script>foo();</script></p>
     {% if user_data %}
-    <p>Welcome, {{ user_data['name'] }} 
-        <button id="sign-out" hidden=true>Sign Out</button>
-    </p>
+    <p>Welcome, {{ user_data['name'] }}</p>
+    {% elif error_message %}
+    <p>Error: {{ error_message }}</p>
+    {% else %}
+	<p>Figure out why it gets into the else block</p>
+    <p><script>console.log(firebaseConfig());</script></p>
     {% endif %}
 
 <!----- End Main ----->
@@ -31,21 +37,10 @@
      https://firebase.google.com/docs/web/setup#available-libraries -->
 <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
-
+<script src="{{ url_for('static', filename='firebase-config.js') }}"></script>
 <script>
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  var firebaseConfig = {
-    apiKey: "AIzaSyAkuGJuF5JX63-qMOZdM5jCiYHUe_Vkf8k",
-    authDomain: "nofrills-recipes.firebaseapp.com",
-    projectId: "nofrills-recipes",
-    storageBucket: "nofrills-recipes.appspot.com",
-    messagingSenderId: "773756241078",
-    appId: "1:773756241078:web:fe26c4aac8682be8725217",
-    measurementId: "G-YRT30C90MK"
-  };
   // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
+  firebase.initializeApp(firebaseConfig());
   firebase.analytics();
 </script>
     
