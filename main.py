@@ -6,6 +6,7 @@ import google.oauth2.id_token
 
 datastore_client = datastore.Client()
 
+
 def store_time(email, dt):
     entity = datastore.Entity(key=datastore_client.key('User', email, 'visit'))
     entity.update({
