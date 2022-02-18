@@ -1,69 +1,153 @@
-import datetime
-from flask import Flask, render_template, request
-from google.auth.transport import requests
-from google.cloud import datastore
-import google.oauth2.id_token
+# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-datastore_client = datastore.Client()
+import logging
+
+import firestore
+from flask import current_app, flash, Flask, Markup, redirect, render_template
+from flask import request, url_for
+from google.cloud import error_reporting
+import google.cloud.logging
+import storage
 
 
-def store_time(email, dt):
-    entity = datastore.Entity(key=datastore_client.key('User', email, 'visit'))
-    entity.update({
-        'timestamp': dt
-    })
+# [START upload_image_file]
+def upload_image_file(img):
+    """
+    Upload the user-uploaded file to Google Cloud Storage and retrieve its
+    publicly-accessible URL.
+    """
+    if not img:
+        return None
 
-    datastore_client.put(entity)
+    public_url = storage.upload_file(
+        img.read(),
+        img.filename,
+        img.content_type
+    )
 
+    current_app.logger.info(
+        'Uploaded file %s as %s.', img.filename, public_url)
 
-def fetch_times(email, limit):
-    ancestor = datastore_client.key('User', email)
-    query = datastore_client.query(kind='visit', ancestor=ancestor)
-    query.order = ['-timestamp']
-
-    times = query.fetch(limit=limit)
-
-    return times
+    return public_url
+# [END upload_image_file]
 
 
 app = Flask(__name__)
+app.config.update(
+    SECRET_KEY='secret',
+    MAX_CONTENT_LENGTH=8 * 1024 * 1024,
+    ALLOWED_EXTENSIONS=set(['png', 'jpg', 'jpeg', 'gif'])
+)
 
-firebase_request_adapter = requests.Request()
+app.debug = False
+app.testing = False
+
+# Configure logging
+if not app.testing:
+    logging.basicConfig(level=logging.INFO)
+    client = google.cloud.logging.Client()
+    # Attaches a Google Stackdriver logging handler to the root logger
+    client.setup_logging()
+
+
 @app.route('/')
-def root():
-    # Verify Firebase auth.
-    id_token = request.cookies.get("token")
-    error_message = None
-    claims = None
-    times = None
+def list_items():
+    start_after = request.args.get('start_after', None)
+    recipes, last_name = firestore.next_page(start_after=start_after)
 
-    if id_token:
-        try:
-            # Verify the token against the Firebase Auth API. This example
-            # verifies the token on each page load. For improved performance,
-            # some applications may wish to cache results in an encrypted
-            # session store (see for instance
-            # http://flask.pocoo.org/docs/1.0/quickstart/#sessions).
-            claims = google.oauth2.id_token.verify_firebase_token(
-                id_token, firebase_request_adapter)
-            store_time(claims['email'], datetime.datetime.now())
-            times = fetch_times(claims['email'], 10)
+    return render_template('list.html', recipes=recipes, last_name=last_name)
 
-        except ValueError as exc:
-            # This will be raised if the token is expired or any other
-            # verification checks fail.
-            error_message = str(exc)
 
-    return render_template(
-        'index.html',
-        user_data=claims, error_message=error_message, times=times)
+@app.route('/recipe/<recipe_id>')
+def view(recipe_id):
+    recipe_header, ingredient_list, directions = firestore.read(recipe_id)
+    return render_template('view.html', recipe=recipe_header, ingredients=ingredient_list, directions=directions, len=len(directions))
 
+
+@app.route('/books/add', methods=['GET', 'POST'])
+def add():
+    if request.method == 'POST':
+        data = request.form.to_dict(flat=True)
+
+        # If an image was uploaded, update the data to point to the new image.
+        image_url = upload_image_file(request.files.get('image'))
+
+        if image_url:
+            data['imageUrl'] = image_url
+
+        book = firestore.create(data)
+
+        return redirect(url_for('.view', book_id=book['id']))
+
+    return render_template('form.html', action='Add', book={})
+
+
+@app.route('/books/<book_id>/edit', methods=['GET', 'POST'])
+def edit(book_id):
+    book = firestore.read(book_id)
+
+    if request.method == 'POST':
+        data = request.form.to_dict(flat=True)
+
+        # If an image was uploaded, update the data to point to the new image.
+        image_url = upload_image_file(request.files.get('image'))
+
+        if image_url:
+            data['imageUrl'] = image_url
+
+        book = firestore.update(data, book_id)
+
+        return redirect(url_for('.view', book_id=book['id']))
+
+    return render_template('form.html', action='Edit', book=book)
+
+
+@app.route('/books/<book_id>/delete')
+def delete(book_id):
+    firestore.delete(book_id)
+    return redirect(url_for('.list'))
+
+
+@app.route('/logs')
+def logs():
+    logging.info('Hey, you triggered a custom log entry. Good job!')
+    flash(Markup('''You triggered a custom log entry. You can view it in the
+        <a href="https://console.cloud.google.com/logs">Cloud Console</a>'''))
+    return redirect(url_for('.list'))
+
+
+@app.route('/errors')
+def errors():
+    raise Exception('This is an intentional exception.')
+
+
+# Add an error handler that reports exceptions to Stackdriver Error
+# Reporting. Note that this error handler is only used when debug
+# is False
+@app.errorhandler(500)
+def server_error(e):
+    client = error_reporting.Client()
+    client.report_exception(
+        http_context=error_reporting.build_flask_context(request))
+    return """
+    An internal error occurred: <pre>{}</pre>
+    See logs for full stacktrace.
+    """.format(e), 500
+
+
+# This is only used when running locally. When running live, gunicorn runs
+# the application.
 if __name__ == '__main__':
-    # This is used when running locally only. When deploying to Google App
-    # Engine, a webserver process such as Gunicorn will serve the app. This
-    # can be configured by adding an `entrypoint` to app.yaml.
-    # Flask's development server will automatically serve static files in
-    # the "static" directory. See:
-    # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
-    # App Engine itself will serve those files as configured in app.yaml.
     app.run(host='127.0.0.1', port=8080, debug=True)

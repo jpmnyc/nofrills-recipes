@@ -1,0 +1,49 @@
+{#
+# Copyright 2022 Patrick Mahoney
+#
+#}
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{recipe.name}}</h2>
+
+<div class="btn-group">
+  <a href="/books/{{recipe.id}}/edit" class="btn btn-primary btn-sm">
+    <i class="glyphicon glyphicon-edit"></i>
+    Edit
+  </a>
+  <a href="/books/{{recipe.id}}/delete" class="btn btn-danger btn-sm">
+    <i class="glyphicon glyphicon-trash"></i>
+    Delete
+  </a>
+</div>
+
+<h3>Ingredients</h3>
+<table class="table">
+  <thead>
+  <th scope="col">Name</th>
+  <th scope="col">Amount</th>
+  <th scope="col">Measurement</th>
+  <th scope="col">Preparation</th>
+  </thead>
+  <tbody>
+  {% for i in ingredients %}
+  <tr>
+    <td>{{i.name}}</td>
+    <td>{{i.amount}}</td>
+    <td>{{i.measurement}}</td>
+    <td>{{i.comment}}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h3>Directions</h3>
+{% for idx in range(0,len) %}
+  <b>{{ idx + 1 }}</b>
+  <p>{{ directions[idx] }}</p>
+{% endfor %}
+
+{% endblock %}
