@@ -1,22 +1,11 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 # [START bookshelf_firestore_client_import]
 from google.cloud import firestore
 # [END bookshelf_firestore_client_import]
 
+from logger import log
 
+
+@log
 def document_to_dict(doc):
     if not doc.exists:
         return None
@@ -25,7 +14,9 @@ def document_to_dict(doc):
     return doc_dict
 
 
+@log
 def next_page(limit=10, start_after=None):
+
     db = firestore.Client()
 
     query = db.collection(u'Recipe').limit(limit).order_by(u'name')
@@ -44,16 +35,25 @@ def next_page(limit=10, start_after=None):
     return docs, last_name
 
 
+@log
 def read(recipe_id):
     # [START bookshelf_firestore_client]
     db = firestore.Client()
-    ref = db.collection(u'Recipe').document(recipe_id)
-    recipe_header = document_to_dict(ref.get())
+    recipe_header = document_to_dict(db.collection(u'Recipe').document(recipe_id).get())
     ingredients = document_to_dict(recipe_header['ingredient_list'].get())['ingredients']
     # [END bookshelf_firestore_client]
     return recipe_header, ingredients, ["Do one thing", "Do another thing"]
 
 
+@log
+def read_directions(recipe_id):
+    db = firestore.Client()
+    recipe_header = document_to_dict(db.collection(u'Recipe').document(recipe_id).get())
+    directions = document_to_dict(recipe_header['directions'].get())['directions']
+    return recipe_header['name'], directions
+
+
+@log
 def update(data, book_id=None):
     db = firestore.Client()
     book_ref = db.collection(u'Book').document(book_id)
@@ -64,6 +64,7 @@ def update(data, book_id=None):
 create = update
 
 
+@log
 def delete(id):
     db = firestore.Client()
     book_ref = db.collection(u'Book').document(id)

@@ -13,13 +13,25 @@
 # limitations under the License.
 
 import logging
+import sys
 
-import firestore
+import firestore as firestore_live
+import firestore_stub
+
 from flask import current_app, flash, Flask, Markup, redirect, render_template
 from flask import request, url_for
 from google.cloud import error_reporting
 import google.cloud.logging
 import storage
+
+STUB_FIRESTORE = False
+
+
+def firestore():
+    if STUB_FIRESTORE:
+        return firestore_stub
+    else:
+        return firestore_live
 
 
 # [START upload_image_file]
@@ -65,14 +77,13 @@ if not app.testing:
 @app.route('/')
 def list_items():
     start_after = request.args.get('start_after', None)
-    recipes, last_name = firestore.next_page(start_after=start_after)
-
+    recipes, last_name = firestore().next_page(start_after=start_after)
     return render_template('list.html', recipes=recipes, last_name=last_name)
 
 
 @app.route('/recipe/<recipe_id>')
 def view(recipe_id):
-    recipe_header, ingredient_list, directions = firestore.read(recipe_id)
+    recipe_header, ingredient_list, directions = firestore().read(recipe_id)
     return render_template('view.html', recipe=recipe_header, ingredients=ingredient_list, directions=directions, len=len(directions))
 
 
@@ -94,29 +105,40 @@ def add():
     return render_template('form.html', action='Add', book={})
 
 
+@app.route('/recipe/<recipe_id>/edit-directions', methods=['GET', 'POST'])
+def edit_directions(recipe_id):
+    recipe_name, directions = firestore().read_directions(recipe_id)
+    if request.method == 'POST':
+        data = request.form.to_dict(flat=True)
+        return
+
+    return render_template('directions.html', action='Edit', recipe_name=recipe_name, directions=directions, size=len(directions))
+
+
 @app.route('/books/<book_id>/edit', methods=['GET', 'POST'])
 def edit(book_id):
-    book = firestore.read(book_id)
+    book = firestore().read(book_id)
 
     if request.method == 'POST':
         data = request.form.to_dict(flat=True)
 
         # If an image was uploaded, update the data to point to the new image.
-        image_url = upload_image_file(request.files.get('image'))
+        #image_url = upload_image_file(request.files.get('image'))
 
-        if image_url:
-            data['imageUrl'] = image_url
+        #if image_url:
+        #    data['imageUrl'] = image_url
 
-        book = firestore.update(data, book_id)
+        #book = firestore.update(data, book_id)
 
-        return redirect(url_for('.view', book_id=book['id']))
+        return
+        #return redirect(url_for('.view', book_id=book['id']))
 
     return render_template('form.html', action='Edit', book=book)
 
 
 @app.route('/books/<book_id>/delete')
 def delete(book_id):
-    firestore.delete(book_id)
+    firestore().delete(book_id)
     return redirect(url_for('.list'))
 
 
@@ -150,4 +172,8 @@ def server_error(e):
 # This is only used when running locally. When running live, gunicorn runs
 # the application.
 if __name__ == '__main__':
+    for arg in sys.argv[1:]:
+        if arg == "--stub-firestore":
+            STUB_FIRESTORE = True
+
     app.run(host='127.0.0.1', port=8080, debug=True)

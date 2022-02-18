@@ -44,7 +44,7 @@
 {% for recipe in recipes %}
   <!-- add a link to /recipe/{{recipe.id}} -->
   <tr>
-      <td>1</td>
+      <td><a href="/recipe/{{recipe.id}}">1</a></td>
       <td>{{recipe.name}}</td>
       <td>{{recipe.source}}</td>
       <td>{{recipe.creation_time}}</td>

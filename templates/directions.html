@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Directions for {{recipe_name}}</title>
+</head>
+<body>
+<h1>{{recipe_name}}</h1>
+<form method="POST" enctype="multipart/form-data">
+    {% for i in range(0,size) %}
+      <div class="form-group">
+          <input name="title{{i}}" value="{{directions[i].title}}">
+          <textarea name="text{{i}}" id="text{{i}}" class="form-control">{{directions[i].text}}</textarea>
+      </div>
+    {% endfor %}
+
+    <button type="button">Add step</button>
+    <button type="submit" class="btn btn-success">Save</button>
+</form>
+
+</body>
+</html>
