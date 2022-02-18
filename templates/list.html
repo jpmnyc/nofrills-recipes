@@ -42,16 +42,13 @@
   </thead>
   <tbody>
 {% for recipe in recipes %}
+  <!-- add a link to /recipe/{{recipe.id}} -->
   <tr>
-    <div class="media">
-      <a href="/recipe/{{recipe.id}}">
-        <td>1</td>
-        <td>{{recipe.name}}</td>
-        <td>{{recipe.source}}</td>
-        <td>{{recipe.creation_time}}</td>
-        <td>{{recipe.update_time}}</td>
-      </a>
-    </div>
+      <td>1</td>
+      <td>{{recipe.name}}</td>
+      <td>{{recipe.source}}</td>
+      <td>{{recipe.creation_time}}</td>
+      <td>{{recipe.update_time}}</td>
   </tr>
 {% else %}
 <p>No books found</p>
