@@ -3,18 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Directions for {{recipe_name}}</title>
+    <script src="{{ url_for('static', filename='js/editing.js') }}"></script>
 </head>
 <body>
 <h1>{{recipe_name}}</h1>
 <form method="POST" enctype="multipart/form-data">
-    {% for i in range(0,size) %}
-      <div class="form-group">
-          <input name="title{{i}}" value="{{directions[i].title}}">
-          <textarea name="text{{i}}" id="text{{i}}" class="form-control">{{directions[i].text}}</textarea>
-      </div>
-    {% endfor %}
+    <div id="directions">
+        {% for i in range(0,size) %}
+          <div class="form-group">
+              <input name="title{{i}}" value="{{directions[i].title}}">
+              <textarea name="text{{i}}" id="text{{i}}" class="form-control">{{directions[i].text}}</textarea>
+          </div>
+        {% endfor %}
+    </div>
+    <div id="new-row" data-next-elem="{{size}}"></div>
 
-    <button type="button">Add step</button>
+    <button type="button" onclick="addRow()">Add step</button>
     <button type="submit" class="btn btn-success">Save</button>
 </form>
 
