@@ -41,17 +41,15 @@
     </tr>
   </thead>
   <tbody>
-{% for recipe in recipes %}
-  <!-- add a link to /recipe/{{recipe.id}} -->
+  {% for idx in range(0,size) %}
+  <!-- add a link to /recipe/{{recipes[idx].id}} -->
   <tr>
-      <td><a href="/recipe/{{recipe.id}}">1</a></td>
-      <td>{{recipe.name}}</td>
-      <td>{{recipe.source}}</td>
-      <td>{{recipe.creation_time}}</td>
-      <td>{{recipe.update_time}}</td>
+      <td><a href="/recipe/{{recipes[idx].id}}">{{ idx+1 }}</a></td>
+      <td>{{recipes[idx].name}}</td>
+      <td>{{recipes[idx].source}}</td>
+      <td>{{recipes[idx].creation_time}}</td>
+      <td>{{recipes[idx].update_time}}</td>
   </tr>
-{% else %}
-<p>No books found</p>
 {% endfor %}
   </tbody>
 </table>

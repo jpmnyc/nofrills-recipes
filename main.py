@@ -34,7 +34,6 @@ def firestore():
         return firestore_live
 
 
-# [START upload_image_file]
 def upload_image_file(img):
     """
     Upload the user-uploaded file to Google Cloud Storage and retrieve its
@@ -53,7 +52,6 @@ def upload_image_file(img):
         'Uploaded file %s as %s.', img.filename, public_url)
 
     return public_url
-# [END upload_image_file]
 
 
 app = Flask(__name__)
@@ -78,7 +76,7 @@ if not app.testing:
 def list_items():
     start_after = request.args.get('start_after', None)
     recipes, last_name = firestore().next_page(start_after=start_after)
-    return render_template('list.html', recipes=recipes, last_name=last_name)
+    return render_template('list.html', recipes=recipes, last_name=last_name, size=len(recipes))
 
 
 @app.route('/recipe/<recipe_id>')
