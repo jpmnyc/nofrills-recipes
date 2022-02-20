@@ -4,6 +4,8 @@ from google.cloud import firestore
 
 from logger import log
 
+RECIPE = u'Recipe'
+
 
 @log
 def document_to_dict(doc):
@@ -19,7 +21,7 @@ def next_page(limit=10, start_after=None):
 
     db = firestore.Client()
 
-    query = db.collection(u'Recipe').limit(limit).order_by(u'name')
+    query = db.collection(RECIPE).limit(limit).order_by(u'name')
 
     if start_after:
         # Construct a new query starting at this document.
@@ -39,7 +41,7 @@ def next_page(limit=10, start_after=None):
 def read(recipe_id):
     # [START bookshelf_firestore_client]
     db = firestore.Client()
-    recipe_header = document_to_dict(db.collection(u'Recipe').document(recipe_id).get())
+    recipe_header = document_to_dict(db.collection(RECIPE).document(recipe_id).get())
     ingredients = document_to_dict(recipe_header['ingredient_list'].get())['ingredients']
     # [END bookshelf_firestore_client]
     return recipe_header, ingredients, ["Do one thing", "Do another thing"]
@@ -48,7 +50,7 @@ def read(recipe_id):
 @log
 def read_directions(recipe_id):
     db = firestore.Client()
-    recipe_header = document_to_dict(db.collection(u'Recipe').document(recipe_id).get())
+    recipe_header = document_to_dict(db.collection(RECIPE).document(recipe_id).get())
     directions = document_to_dict(recipe_header['directions'].get())['directions']
     return recipe_header['name'], directions
 
@@ -56,7 +58,7 @@ def read_directions(recipe_id):
 @log
 def update(data, book_id=None):
     db = firestore.Client()
-    book_ref = db.collection(u'Book').document(book_id)
+    book_ref = db.collection(RECIPE).document(book_id)
     book_ref.set(data)
     return document_to_dict(book_ref.get())
 
@@ -67,5 +69,5 @@ create = update
 @log
 def delete(id):
     db = firestore.Client()
-    book_ref = db.collection(u'Book').document(id)
+    book_ref = db.collection(RECIPE).document(id)
     book_ref.delete()

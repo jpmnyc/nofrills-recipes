@@ -87,7 +87,7 @@ def view(recipe_id):
     return render_template('view.html', recipe=recipe_header, ingredients=ingredient_list, directions=directions, len=len(directions))
 
 
-@app.route('/books/add', methods=['GET', 'POST'])
+@app.route('/recipe/add', methods=['GET', 'POST'])
 def add():
     if request.method == 'POST':
         data = request.form.to_dict(flat=True)
@@ -98,7 +98,7 @@ def add():
         if image_url:
             data['imageUrl'] = image_url
 
-        book = firestore.create(data)
+        book = firestore().create(data)
 
         return redirect(url_for('.view', book_id=book['id']))
 
@@ -110,14 +110,15 @@ def edit_directions(recipe_id):
     recipe_name, directions = firestore().read_directions(recipe_id)
     if request.method == 'POST':
         data = request.form.to_dict(flat=True)
-        return
+        print(data)
+        return view(recipe_id)
 
     return render_template('directions.html', action='Edit', recipe_name=recipe_name, directions=directions, size=len(directions))
 
 
-@app.route('/books/<book_id>/edit', methods=['GET', 'POST'])
-def edit(book_id):
-    book = firestore().read(book_id)
+@app.route('/recipe/<recipe_id>/edit', methods=['GET', 'POST'])
+def edit(recipe_id):
+    book = firestore().read(recipe_id)
 
     if request.method == 'POST':
         data = request.form.to_dict(flat=True)
@@ -136,9 +137,9 @@ def edit(book_id):
     return render_template('form.html', action='Edit', book=book)
 
 
-@app.route('/books/<book_id>/delete')
-def delete(book_id):
-    firestore().delete(book_id)
+@app.route('/recipe/<recipe_id>/delete')
+def delete(recipe_id):
+    firestore().delete(recipe_id)
     return redirect(url_for('.list'))
 
 
@@ -160,8 +161,8 @@ def errors():
 # is False
 @app.errorhandler(500)
 def server_error(e):
-    client = error_reporting.Client()
-    client.report_exception(
+    error_client = error_reporting.Client()
+    error_client.report_exception(
         http_context=error_reporting.build_flask_context(request))
     return """
     An internal error occurred: <pre>{}</pre>
