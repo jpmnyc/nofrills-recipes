@@ -6,6 +6,7 @@ CREATION_TIME=datetime.datetime.now()
 
 def recipe1_dict():
     return dict(
+        id='dummy1',
         name=NAME,
         source='Martha Stewart',
         creation_time=CREATION_TIME,
@@ -15,6 +16,7 @@ def recipe1_dict():
 
 def recipe2_dict():
     return  dict(
+        id='dummy2',
         name="Another Name",
         source="Food & Wine",
         creation_time=CREATION_TIME,
@@ -28,7 +30,8 @@ def read_directions(*args, **kwargs):
 
 
 def read(recipe_id):
-    return recipe1_dict(), [dict(), dict()], ["Do one thing", "Do another thing"]
+    _directions = read_directions()
+    return recipe1_dict(), [dict(), dict()], directions
 
 
 def next_page(limit=10, start_after=None):

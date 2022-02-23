@@ -103,7 +103,7 @@ def add():
     return render_template('form.html', action='Add', book={})
 
 
-@app.route('/recipe/<recipe_id>/directions-edit', methods=['GET', 'POST'])
+@app.route('/recipe/<recipe_id>/edit-directions', methods=['GET', 'POST'])
 def edit_directions(recipe_id):
     recipe_name, directions = firestore().read_directions(recipe_id)
     if request.method == 'POST':
