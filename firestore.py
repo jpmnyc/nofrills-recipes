@@ -5,7 +5,11 @@ from google.cloud import firestore
 from logger import log
 
 RECIPE = u'Recipe'
+RECIPE_CACHE = dict()
 
+
+def recipe_cache():
+    return RECIPE_CACHE
 
 @log
 def document_to_dict(doc):
@@ -38,19 +42,30 @@ def next_page(limit=10, start_after=None):
 
 
 @log
+def recipe_ref(recipe_id):
+    cache = recipe_cache()
+    ref = cache.get(recipe_id)
+    if ref is None:
+        db = firestore.Client()
+        ref = db.collection(RECIPE).document(recipe_id)
+        cache[recipe_id] = ref
+
+    return ref
+
+
+@log
 def read(recipe_id):
-    # [START bookshelf_firestore_client]
-    db = firestore.Client()
-    recipe_header = document_to_dict(db.collection(RECIPE).document(recipe_id).get())
+    ref = recipe_ref(recipe_id)
+    recipe_header = document_to_dict(ref.get())
     ingredients = document_to_dict(recipe_header['ingredient_list'].get())['ingredients']
-    # [END bookshelf_firestore_client]
-    return recipe_header, ingredients, ["Do one thing", "Do another thing"]
+    _, directions = read_directions(recipe_id)
+    return recipe_header, ingredients, directions
 
 
 @log
 def read_directions(recipe_id):
-    db = firestore.Client()
-    recipe_header = document_to_dict(db.collection(RECIPE).document(recipe_id).get())
+    ref = recipe_ref(recipe_id)
+    recipe_header = document_to_dict(ref.get())
     directions = document_to_dict(recipe_header['directions'].get())['directions']
     return recipe_header['name'], directions
 

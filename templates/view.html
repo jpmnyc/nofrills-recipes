@@ -10,14 +10,14 @@
 <h2>{{recipe.name}}</h2>
 
 <div class="btn-group">
-  <a href="/books/{{recipe.id}}/delete" class="btn btn-danger btn-sm">
+  <a href="/recipe/{{recipe.id}}/delete" class="btn btn-danger btn-sm">
     <i class="glyphicon glyphicon-trash"></i>
     Delete
   </a>
 </div>
 
 <h3>Ingredients
-  <a href="/recipes/{{recipe.id}}/ingredients-edit" class="btn btn-primary btn-sm"><i class="glyphicon glyphicon-edit"></i>Edit</a>
+  <a href="/recipe/{{recipe.id}}/ingredients-edit" class="btn btn-primary btn-sm"><i class="glyphicon glyphicon-edit"></i>Edit</a>
 </h3>
 <table class="table">
   <thead>
@@ -41,11 +41,12 @@
 </table>
 
 <h3>Directions
-  <a href="/recipes/{{recipe.id}}/directions-edit" class="btn btn-primary btn-sm"><i class="glyphicon glyphicon-edit"></i></a>
+  <a href="/recipe/{{recipe.id}}/directions-edit" class="btn btn-primary btn-sm"><i class="glyphicon glyphicon-edit"></i></a>
 </h3>
 {% for idx in range(0,len) %}
-  <b>{{ idx + 1 }}</b>
-  <p>{{ directions[idx] }}</p>
+  <b>{{ idx+1 }}</b>
+  <p class="direction-title">{{ directions[idx]['title'] }}</p>
+  <p>{{ directions[idx]['text'] }}</p>
 {% endfor %}
 
 {% endblock %}

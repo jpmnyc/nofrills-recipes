@@ -25,7 +25,7 @@ import google.cloud.logging
 import storage
 
 STUB_FIRESTORE = False
-
+MAX_STEPS = 100
 
 def firestore():
     if STUB_FIRESTORE:
@@ -103,12 +103,23 @@ def add():
     return render_template('form.html', action='Add', book={})
 
 
-@app.route('/recipe/<recipe_id>/edit-directions', methods=['GET', 'POST'])
+@app.route('/recipe/<recipe_id>/directions-edit', methods=['GET', 'POST'])
 def edit_directions(recipe_id):
     recipe_name, directions = firestore().read_directions(recipe_id)
     if request.method == 'POST':
         data = request.form.to_dict(flat=True)
-        print(data)
+        directions = []
+        for i in range(MAX_STEPS):
+            title = data.get('title{i}'.format(i=i))
+            text = data.get('text{i}'.format(i=i))
+            if title is None or text is None:
+                break
+            directions.append(dict(title=title, text=text))
+
+        recipe = firestore().recipe_ref(recipe_id)
+        directions_ref = recipe.get().get('directions')
+        directions_ref.update({'directions': directions})
+
         return view(recipe_id)
 
     return render_template('directions.html', action='Edit', recipe_name=recipe_name, directions=directions, size=len(directions))
