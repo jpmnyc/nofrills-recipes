@@ -1,7 +1,9 @@
 import datetime
+from entities.Ingredient import Ingredient
+from entities.IngredientList import IngredientList
 
 NAME = 'Chocolate Cake'
-CREATION_TIME=datetime.datetime.now()
+CREATION_TIME = datetime.datetime.now()
 
 
 def recipe1_dict():
@@ -24,13 +26,25 @@ def recipe2_dict():
     )
 
 
+def ingredients():
+    return [Ingredient('all-purpose flour', 1, 'c', ''), Ingredient('butter', 8, 'tbsp', 'softened')]
+
+
+def ingredient_list():
+    return IngredientList(ingredients())
+
+
 def read_directions(*args, **kwargs):
     return 'Empty Name', [dict(title='', text='Do Something'),
                           dict(title='Bake the Cake', text='Pat-a-cake, pat-a-cake, baker''s man. Bake me a cake just as fast as you can')]
 
 
+def read_ingredients(*args, **kwarg):
+    return ingredient_list()
+
+
 def read(recipe_id):
-    _directions = read_directions()
+    _, directions = read_directions()
     return recipe1_dict(), [dict(), dict()], directions
 
 

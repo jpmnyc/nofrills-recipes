@@ -1,17 +1,19 @@
 # [START bookshelf_firestore_client_import]
 from google.cloud import firestore
+from entities.IngredientList import IngredientList
 # [END bookshelf_firestore_client_import]
 
 from logger import log
 
 RECIPE = u'Recipe'
+INGREDIENT_LIST = u'Ingredient List'
 RECIPE_CACHE = dict()
 
 
 def recipe_cache():
     return RECIPE_CACHE
 
-@log
+
 def document_to_dict(doc):
     if not doc.exists:
         return None
@@ -57,9 +59,14 @@ def recipe_ref(recipe_id):
 def read(recipe_id):
     ref = recipe_ref(recipe_id)
     recipe_header = document_to_dict(ref.get())
+    ingredients_ref = recipe_header['ingredient_list']
     ingredients = document_to_dict(recipe_header['ingredient_list'].get())['ingredients']
     _, directions = read_directions(recipe_id)
     return recipe_header, ingredients, directions
+
+
+def read_ingredients(ingredients_ref):
+    return IngredientList.from_dict(document_to_dict(ingredients_ref.get()))
 
 
 @log
@@ -86,3 +93,9 @@ def delete(id):
     db = firestore.Client()
     book_ref = db.collection(RECIPE).document(id)
     book_ref.delete()
+
+
+def ingredient_example():
+    db = firestore.Client()
+    ref = db.collection(INGREDIENT_LIST).document('7HuyDFPFhV9Y2nAvbp06')
+    return ref
