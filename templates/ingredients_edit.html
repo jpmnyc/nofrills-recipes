@@ -1,0 +1,29 @@
+{% extends base.html %}
+
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Ingredients for {{recipe_name}}</title>
+    <script src="{{ url_for('static', filename='js/editing.js') }}"></script>
+</head>
+<body>
+<h1>{{recipe_name}}</h1>
+<form method="POST" enctype="multipart/form-data">
+    <div id="ingredients">
+        {% for i in range(0,size) %}
+          <div class="form-group">
+              <input name="name{{i}}" value="{{ingredients[i].name}}">
+              <input name="amount{{i}}" value="{{ingredients[i].amount}}">
+              <input name="measurement{{i}}" value="{{ingredients[i].measurement}}">
+              <input name="preparation{{i}}" value="{{ingredients[i].preparation}}">
+          </div>
+        {% endfor %}
+    </div>
+    <div id="new-row" data-next-elem="{{size}}"></div>
+
+    <button type="button" onclick="addRow()">Add step</button>
+    <button type="submit" class="btn btn-success">Save</button>
+</form>
+
+</body>
+</html>

@@ -1,17 +1,12 @@
-# [START bookshelf_firestore_client_import]
 from google.cloud import firestore
 from entities.IngredientList import IngredientList
-# [END bookshelf_firestore_client_import]
+from entities.Directions import Directions
 
 from logger import log
 
 RECIPE = u'Recipe'
 INGREDIENT_LIST = u'Ingredient List'
-RECIPE_CACHE = dict()
-
-
-def recipe_cache():
-    return RECIPE_CACHE
+DIRECTIONS = u'Directions'
 
 
 def document_to_dict(doc):
@@ -44,24 +39,20 @@ def next_page(limit=10, start_after=None):
 
 
 @log
-def recipe_ref(recipe_id):
-    cache = recipe_cache()
-    ref = cache.get(recipe_id)
-    if ref is None:
-        db = firestore.Client()
-        ref = db.collection(RECIPE).document(recipe_id)
-        cache[recipe_id] = ref
+def recipe(recipe_id):
+    db = firestore.Client()
+    return db.collection(RECIPE).document(recipe_id)
 
-    return ref
+
+def read_header(recipe_id):
+    return document_to_dict(recipe(recipe_id).get())
 
 
 @log
 def read(recipe_id):
-    ref = recipe_ref(recipe_id)
-    recipe_header = document_to_dict(ref.get())
-    ingredients_ref = recipe_header['ingredient_list']
-    ingredients = document_to_dict(recipe_header['ingredient_list'].get())['ingredients']
-    _, directions = read_directions(recipe_id)
+    recipe_header = read_header(recipe_id)
+    ingredients = read_ingredients(recipe_header['ingredient_list'])
+    directions = read_directions(recipe_header['directions'])
     return recipe_header, ingredients, directions
 
 
@@ -70,11 +61,8 @@ def read_ingredients(ingredients_ref):
 
 
 @log
-def read_directions(recipe_id):
-    ref = recipe_ref(recipe_id)
-    recipe_header = document_to_dict(ref.get())
-    directions = document_to_dict(recipe_header['directions'].get())['directions']
-    return recipe_header['name'], directions
+def read_directions(directions_ref):
+    return Directions.from_dict(document_to_dict(directions_ref.get()))
 
 
 @log
@@ -89,13 +77,18 @@ create = update
 
 
 @log
-def delete(id):
+def delete(recipe_id):
     db = firestore.Client()
-    book_ref = db.collection(RECIPE).document(id)
+    book_ref = db.collection(RECIPE).document(recipe_id)
     book_ref.delete()
 
 
-def ingredient_example():
+def ingredient_list_example():
     db = firestore.Client()
     ref = db.collection(INGREDIENT_LIST).document('7HuyDFPFhV9Y2nAvbp06')
     return ref
+
+
+def directions_example():
+    db = firestore.Client()
+    return db.collection(DIRECTIONS).document('fqkqgOinMdEBA5SYdV44')

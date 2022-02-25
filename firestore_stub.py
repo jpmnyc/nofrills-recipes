@@ -1,6 +1,6 @@
 import datetime
-from entities.Ingredient import Ingredient
-from entities.IngredientList import IngredientList
+from entities.IngredientList import Ingredient, IngredientList
+from entities.Directions import DirectionStep, Directions
 
 NAME = 'Chocolate Cake'
 CREATION_TIME = datetime.datetime.now()
@@ -35,8 +35,9 @@ def ingredient_list():
 
 
 def read_directions(*args, **kwargs):
-    return 'Empty Name', [dict(title='', text='Do Something'),
-                          dict(title='Bake the Cake', text='Pat-a-cake, pat-a-cake, baker''s man. Bake me a cake just as fast as you can')]
+    return Directions([
+        DirectionStep(title='', text='Do Something'),
+        DirectionStep(title='Bake the Cake', text='Pat-a-cake, pat-a-cake, baker''s man. Bake me a cake just as fast as you can')])
 
 
 def read_ingredients(*args, **kwarg):
@@ -44,8 +45,7 @@ def read_ingredients(*args, **kwarg):
 
 
 def read(recipe_id):
-    _, directions = read_directions()
-    return recipe1_dict(), [dict(), dict()], directions
+    return recipe1_dict(), ingredient_list(), read_directions()
 
 
 def next_page(limit=10, start_after=None):

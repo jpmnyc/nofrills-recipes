@@ -82,7 +82,11 @@ def list_items():
 @app.route('/recipe/<recipe_id>')
 def view(recipe_id):
     recipe_header, ingredient_list, directions = firestore().read(recipe_id)
-    return render_template('view.html', recipe=recipe_header, ingredients=ingredient_list, directions=directions, len=len(directions))
+    return render_template('recipe_view.html',
+                           recipe=recipe_header,
+                           ingredients=[i.to_dict() for i in ingredient_list.ingredients],
+                           directions=[step.to_dict() for step in directions.steps],
+                           len=len(directions.steps))
 
 
 @app.route('/recipe/add', methods=['GET', 'POST'])
@@ -122,7 +126,30 @@ def edit_directions(recipe_id):
 
         return view(recipe_id)
 
-    return render_template('directions.html', action='Edit', recipe_name=recipe_name, directions=directions, size=len(directions))
+    return render_template('directions_edit.html', action='Edit', recipe_name=recipe_name, directions=directions, size=len(directions))
+
+
+@app.route('/recipe/<recipe_id>/edit-ingredients', methods=['GET', 'POST'])
+def edit_ingredients(recipe_id):
+    recipe_header = firestore().read_header(recipe_id)
+    ingredients = firestore().read_ingredients(recipe_id)
+    if request.method == 'POST':
+        data = request.form.to_dict(flat=True)
+        directions = []
+        for i in range(MAX_STEPS):
+            title = data.get('title{i}'.format(i=i))
+            text = data.get('text{i}'.format(i=i))
+            if title is None or text is None:
+                break
+            directions.append(dict(title=title, text=text))
+
+        recipe = firestore().recipe_ref(recipe_id)
+        directions_ref = recipe.get().get('directions')
+        directions_ref.update({'directions': directions})
+
+        return view(recipe_id)
+
+    return render_template('directions_edit.html', action='Edit', recipe_name=recipe_name, directions=directions, size=len(directions))
 
 
 @app.route('/recipe/<recipe_id>/edit', methods=['GET', 'POST'])
