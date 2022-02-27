@@ -1,0 +1,12 @@
+tr:hover {
+  background: #f2f3ff;
+  outline: none;
+  cursor: pointer;
+}
+
+p.step-number {
+    color: blue;
+    font-size: 150%;
+    text-align: center;
+    vertical-align: center;
+}

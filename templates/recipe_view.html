@@ -9,13 +9,6 @@
 
 <h2>{{recipe.name}}</h2>
 
-<div class="btn-group">
-  <a href="/recipe/{{recipe.id}}/delete" class="btn btn-danger btn-sm">
-    <i class="glyphicon glyphicon-trash"></i>
-    Delete
-  </a>
-</div>
-
 <h3>Ingredients
   <a href="/recipe/{{recipe.id}}/edit-ingredients" class="btn btn-primary btn-sm"><i class="glyphicon glyphicon-edit"></i>Edit</a>
 </h3>
@@ -43,10 +36,25 @@
 <h3>Directions
   <a href="/recipe/{{recipe.id}}/edit-directions" class="btn btn-primary btn-sm"><i class="glyphicon glyphicon-edit"></i></a>
 </h3>
+<table>
 {% for idx in range(0,len) %}
-  <b>{{ idx+1 }}</b>
-  <p class="direction-title">{{ directions[idx]['title'] }}</p>
-  <p>{{ directions[idx]['text'] }}</p>
+    <tr>
+      <td width="25px"><p class="step-number">{{ idx+1 }}</p></td>
+      <td>
+        <div>
+          <p class="step-title">{{ directions[idx]['title'] }}</p>
+          <p class="step-text">{{ directions[idx]['text'] }}</p>
+        </div>
+      </td>
+    </tr>
 {% endfor %}
+</table>
+
+<div class="btn-group">
+  <a href="/recipe/{{recipe.id}}/delete" class="btn btn-danger btn-sm">
+    <i class="glyphicon glyphicon-trash"></i>
+    Delete
+  </a>
+</div>
 
 {% endblock %}
