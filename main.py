@@ -26,6 +26,8 @@ import storage
 
 STUB_FIRESTORE = False
 MAX_STEPS = 100
+MAX_INGREDIENTS = 200
+
 
 def firestore():
     if STUB_FIRESTORE:
@@ -137,7 +139,7 @@ def edit_ingredients(recipe_id):
     if request.method == 'POST':
         data = request.form.to_dict(flat=True)
         ingredients = []
-        for i in range(MAX_STEPS):
+        for i in range(MAX_INGREDIENTS):
             name = data.get(f'name{i}')
             amount = data.get(f'amount{i}')
             measurement = data.get(f'measurement{i}')
