@@ -1,7 +1,7 @@
 "use strict";
 
-function addRow() {
-    var newRow = document.getElementById("new-row");
+function addDirectionRow() {
+    var newRow = document.getElementById("table-div");
     var idx = newRow.getAttribute('data-next-elem');
     console.log(idx);
 
@@ -16,9 +16,35 @@ function addRow() {
     formGroup.appendChild(textarea);
 
     // append the formGroup
-    var directionsDiv = document.getElementById("directions");
+    var directionsDiv = document.getElementById("table-div");
     directionsDiv.appendChild(formGroup);
 
     // update the index
     newRow.setAttribute('data-next-elem', parseInt(idx)+1);
+}
+
+function addIngredientRow() {
+    var table = document.getElementById('table-div');
+    var idx = table.getAttribute('data-next-elem');
+    console.log(idx);
+
+    // Create the new div element
+    var formGroup = document.createElement("div");
+    formGroup.className = 'form-group'
+    var input;
+
+    var fields = ['name', 'amount', 'measurement', 'preparation']
+    for (let i = 0; i < fields.length; ++i) {
+        input = document.createElement("input");
+        input.name = fields[i] + idx;
+        input.setAttribute('value', 'a');
+        formGroup.appendChild(input);
+    }
+
+    // append the formGroup
+    var directionsDiv = document.getElementById("table-div");
+    directionsDiv.appendChild(formGroup);
+
+    // update the index
+    table.setAttribute('data-next-elem', parseInt(idx)+1);
 }

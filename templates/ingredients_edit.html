@@ -1,4 +1,6 @@
-{% extends base.html %}
+{% extends "base.html" %}
+
+{% block content %}
 
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
@@ -9,7 +11,7 @@
 <body>
 <h1>{{recipe_name}}</h1>
 <form method="POST" enctype="multipart/form-data">
-    <div id="ingredients">
+    <div id="table-div" data-next-elem="{{size}}">
         {% for i in range(0,size) %}
           <div class="form-group">
               <input name="name{{i}}" value="{{ingredients[i].name}}">
@@ -19,11 +21,9 @@
           </div>
         {% endfor %}
     </div>
-    <div id="new-row" data-next-elem="{{size}}"></div>
 
-    <button type="button" onclick="addRow()">Add step</button>
+    <button type="button" onclick="addIngredientRow()">Add step</button>
     <button type="submit" class="btn btn-success">Save</button>
 </form>
 
-</body>
-</html>
+{% endblock %}

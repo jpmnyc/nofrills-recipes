@@ -44,8 +44,12 @@ def read_ingredients(*args, **kwarg):
     return ingredient_list()
 
 
-def read(recipe_id):
+def read(*_args):
     return recipe1_dict(), ingredient_list(), read_directions()
+
+
+def read_header(*_args):
+    return dict(ingredient_list=None, directions=None)
 
 
 def next_page(limit=10, start_after=None):

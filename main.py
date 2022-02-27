@@ -132,24 +132,26 @@ def edit_directions(recipe_id):
 @app.route('/recipe/<recipe_id>/edit-ingredients', methods=['GET', 'POST'])
 def edit_ingredients(recipe_id):
     recipe_header = firestore().read_header(recipe_id)
-    ingredients = firestore().read_ingredients(recipe_id)
+    ingredients_ref = recipe_header.get('ingredient_list')
+    ingredient_list = firestore().read_ingredients(ingredients_ref)
     if request.method == 'POST':
         data = request.form.to_dict(flat=True)
-        directions = []
+        ingredients = []
         for i in range(MAX_STEPS):
-            title = data.get('title{i}'.format(i=i))
-            text = data.get('text{i}'.format(i=i))
-            if title is None or text is None:
+            name = data.get(f'name{i}')
+            amount = data.get(f'amount{i}')
+            measurement = data.get(f'measurement{i}')
+            preparation = data.get(f'preparation{i}')
+            if name is None:
                 break
-            directions.append(dict(title=title, text=text))
+            ingredients.append(dict(name=name, amount=amount, measurement=measurement, preparation=preparation))
 
-        recipe = firestore().recipe_ref(recipe_id)
-        directions_ref = recipe.get().get('directions')
-        directions_ref.update({'directions': directions})
+        ingredients_ref.update({'ingredients': ingredients})
 
         return view(recipe_id)
 
-    return render_template('directions_edit.html', action='Edit', recipe_name=recipe_name, directions=directions, size=len(directions))
+    ingredients = ingredient_list.to_dict()['ingredients']
+    return render_template('ingredients_edit.html', action='Edit', recipe_name=recipe_header.get('name'), ingredients=ingredients, size=len(ingredients))
 
 
 @app.route('/recipe/<recipe_id>/edit', methods=['GET', 'POST'])
