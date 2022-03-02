@@ -25,14 +25,9 @@
 {% endwith %}
 
 <h3>Recipes</h3>
-<a href="/recipe/add" class="btn btn-success btn-sm">
-  <i class="glyphicon glyphicon-plus"></i>
-  New recipe
-</a>
-
-<table class="table">
+<table class="table" id="recipe">
   <thead>
-    <tr>
+    <tr class="header">
       <th scope="col">#</th>
       <th scope="col">Name</th>
       <th scope="col">Source</th>
@@ -43,7 +38,7 @@
   <tbody>
   {% for idx in range(0,size) %}
   <!-- add a link to /recipe/{{recipes[idx].id}} -->
-  <tr>
+  <tr onclick="(function(){console.log('hi');})();">
       <td><a href="/recipe/{{recipes[idx].id}}">{{ idx+1 }}</a></td>
       <td>{{recipes[idx].name}}</td>
       <td>{{recipes[idx].source}}</td>
@@ -53,6 +48,11 @@
 {% endfor %}
   </tbody>
 </table>
+
+<a href="/recipe/add" class="btn btn-success btn-sm">
+  <i class="glyphicon glyphicon-plus"></i>
+  New recipe
+</a>
 
 {% if last_title %}
 <nav>

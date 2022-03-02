@@ -1,7 +1,12 @@
 tr:hover {
   background: #f2f3ff;
   outline: none;
-  cursor: pointer;
+  /*cursor: pointer;*/
+}
+
+tr.header:hover {
+    background: none;
+    /*cursor:pointer;*/
 }
 
 p.step-number {
