@@ -4,7 +4,7 @@ from entities.DictComparable import DictComparable
 class Ingredient(DictComparable):
 
     def __init__(self, name, amount, measurement, preparation=''):
-        self.name = name
+        self.name=name
         self.amount = amount
         self.measurement = measurement
         self.preparation = preparation

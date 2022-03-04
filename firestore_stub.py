@@ -1,6 +1,8 @@
 import datetime
 from entities.IngredientList import Ingredient, IngredientList
 from entities.Directions import DirectionStep, Directions
+from entities.Recipe import Recipe
+
 
 NAME = 'Chocolate Cake'
 CREATION_TIME = datetime.datetime.now()
@@ -53,4 +55,4 @@ def read_header(*_args):
 
 
 def next_page(limit=10, start_after=None):
-    return [recipe1_dict(), recipe2_dict()], NAME
+    return [Recipe.from_dict(recipe1_dict()), Recipe.from_dict(recipe2_dict())], NAME

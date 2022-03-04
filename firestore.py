@@ -1,6 +1,7 @@
 from google.cloud import firestore
 from entities.IngredientList import IngredientList
 from entities.Directions import Directions
+from entities.Recipe import Recipe
 
 from logger import log
 
@@ -9,11 +10,14 @@ INGREDIENT_LIST = u'Ingredient List'
 DIRECTIONS = u'Directions'
 
 
-def document_to_dict(doc):
+def document_to_dict(doc, cls=None):
     if not doc.exists:
         return None
     doc_dict = doc.to_dict()
     doc_dict['id'] = doc.id
+    if cls:
+        return cls.from_dict(doc_dict)
+
     return doc_dict
 
 
@@ -29,7 +33,7 @@ def next_page(limit=10, start_after=None):
         query = query.start_after({u'name': start_after})
 
     docs = query.stream()
-    docs = list(map(document_to_dict, docs))
+    docs = list(map(lambda doc: document_to_dict(doc, Recipe), docs))
 
     last_name = None
     if limit == len(docs):
