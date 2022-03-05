@@ -1,3 +1,5 @@
+import datetime
+
 from entities.DictComparable import DictComparable
 
 
@@ -44,4 +46,13 @@ class Recipe(DictComparable):
             source.get('directions'),
             source.get('update_time')
         )
+
+    def get_creation_date_string(self):
+        return self.creation_time.strftime('%Y-%m-%d')
+
+    def get_update_time_string(self):
+        return self.update_time.strftime('%Y-%m-%d %H:%M:%S')
+
+    creation_date_string = property(get_creation_date_string)
+    update_time_string = property(get_update_time_string)
 

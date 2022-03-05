@@ -3,3 +3,6 @@ venv
 .idea
 NOTES.txt
 __pycache__
+.coverage
+**/*.pyc
+coverage_html_report
